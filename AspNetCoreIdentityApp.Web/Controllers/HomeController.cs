@@ -38,6 +38,12 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp(SignUpViewModel model)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
             // CreateAsync metodu ile kullanıcı oluşturulur. Önce user daha sonra password eklenir. Password has için ayrı eklenir.
             var IdentityResult = await _userManager.CreateAsync(new()
             {

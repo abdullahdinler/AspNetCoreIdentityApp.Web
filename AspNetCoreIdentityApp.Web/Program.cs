@@ -1,4 +1,5 @@
 using AspNetCoreIdentityApp.Web.Context;
+using AspNetCoreIdentityApp.Web.Extensions;
 using AspNetCoreIdentityApp.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,35 +15,11 @@ builder.Services.AddDbContext<AppDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
 });
 
+
 // Identity Configuration
-builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<AppDbContext>();
+builder.Services.AddIdentityWithExtention();
 
-#region Configure<IdentityOptions>
-//builder.Services.Configure<IdentityOptions>(options =>
-//{
-//    // Password
-//    options.Password.RequireDigit = true;
-//    options.Password.RequireLowercase = true;
-//    options.Password.RequireUppercase = true;
-//    options.Password.RequireNonAlphanumeric = true;
-//    options.Password.RequiredLength = 8;
-//    options.Password.RequiredUniqueChars = 1;
 
-//    // Lockout
-//    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-//    options.Lockout.MaxFailedAccessAttempts = 5;
-//    options.Lockout.AllowedForNewUsers = true;
-
-//    // User
-//    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-//    options.User.RequireUniqueEmail = true;
-
-//    // Signin
-//    options.SignIn.RequireConfirmedEmail = false;
-//    options.SignIn.RequireConfirmedPhoneNumber = false;
-//});
-
-#endregion
 
 
 var app = builder.Build();
@@ -61,6 +38,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 
 app.MapControllerRoute(
     name: "default",
