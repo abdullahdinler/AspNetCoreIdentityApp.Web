@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using AspNetCoreIdentityApp.Web.Extensions;
+using AspNetCoreIdentityApp.Web.Services;
 using AspNetCoreIdentityApp.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,12 +13,14 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IEmailService _emailService;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -42,8 +45,6 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         public IActionResult SignIn()
         {
 
-
-
             return View();
         }
 
@@ -57,21 +58,21 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             }
 
             // CreateAsync metodu ile kullanıcı oluşturulur. Önce user daha sonra password eklenir. Password has için ayrı eklenir.
-            var IdentityResult = await _userManager.CreateAsync(new()
+            var identityResult = await _userManager.CreateAsync(new()
             {
                 UserName = model.UserName,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber
             }, model.PasswordConfirm);
 
-            if (IdentityResult.Succeeded)
+            if (identityResult.Succeeded)
             {
                 TempData["Message"] = "Kayıt Başarılı bir şekilde oluşturuldu.";
                 return RedirectToAction(nameof(SignUp));
             }
 
             // AddModelErrorExtension ile hata mesajları ModelStateDictionary sınıfına eklenir.
-            ModelState.AddModelErrorExtension(IdentityResult.Errors.Select(x => x.Description).ToList());
+            ModelState.AddModelErrorExtension(identityResult.Errors.Select(x => x.Description).ToList());
             return View();
         }
 
@@ -83,8 +84,8 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             {
                 return View();
             }
-            var returnUrl1 = returnUrl ?? Url.Action(nameof(Index));
-            
+            returnUrl ??= Url.Action(nameof(Index));
+
             // FindByEmailAsync ile kullanıcı var mı yok mu kontrol edilir.
             var hasUser = await _userManager.FindByEmailAsync(model.Email);
 
@@ -99,7 +100,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
 
             if (result.Succeeded)
             {
-                return Redirect(returnUrl1);
+                return Redirect(returnUrl!);
             }
 
             if (result.IsLockedOut)
@@ -112,9 +113,76 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             var failedAttempts = await _userManager.GetAccessFailedCountAsync(hasUser);
 
             // AddModelErrorExtension ile hata mesajları ModelStateDictionary sınıfına eklenir.
-            ModelState.AddModelErrorExtension(new List<string>() {"Email veya şifre hatalı.", $"Başarısız giriş sayısı: {failedAttempts}"});
-                        
+            ModelState.AddModelErrorExtension(new List<string>() { "Email veya şifre hatalı.", $"Başarısız giriş sayısı: {failedAttempts}" });
+
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordViewModel model)
+        {
+            var hasUser = await _userManager.FindByEmailAsync(model.Email);
+            if (hasUser == null)
+            {
+                ModelState.AddModelError(string.Empty, "Eposta adresi bulunamadı.");
+                return View();
+            }
+
+            var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(hasUser);
+            var passwordResetLink = Url.Action(nameof(ResetPassword), "Home", new { userId = hasUser.Id, token = passwordResetToken }, Request.Scheme);
+
+            await _emailService.ResetPasswordEmail(hasUser.Email!, passwordResetLink!);
+
+            TempData["Message"] = "Şifre sıfırlama linkiniz eposta adresinize gönderildi";
+            return RedirectToAction(nameof(ForgetPassword));
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            TempData["userId"] = userId;
+            TempData["token"] = token;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            var userId = TempData["userId"];
+            var token = TempData["token"];
+
+            if (userId == null || token == null)
+            {
+                ModelState.AddModelError(string.Empty, "Token veya kullanıcı bilgisi bulunamadı.");
+                return View();
+            }
+
+
+            var hasUser = await _userManager.FindByIdAsync(userId.ToString()!);
+            if (hasUser == null)
+            {
+                ModelState.AddModelError(string.Empty, "Kullanıcı bulunamadı.");
+                return View();
+            }
+
+            // ResetPasswordAsync methodu ile kullanıcı şifresi değiştirilir.
+            var result = await _userManager.ResetPasswordAsync(hasUser, token.ToString()!, model.Password);
+            if (result.Succeeded)
+            {
+                TempData["Message"] = "Şifreniz başarılı bir şekilde değiştirildi.";
+                return RedirectToAction(nameof(ResetPassword));
+            }
+            else
+            {
+                ModelState.AddModelErrorExtension(result.Errors.Select(x => x.Description).ToList());
+                return View();
+            }
         }
 
 
