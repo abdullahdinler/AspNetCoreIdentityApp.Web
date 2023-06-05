@@ -3,6 +3,7 @@ using AspNetCoreIdentityApp.Web.Extensions;
 using AspNetCoreIdentityApp.Web.OptionModels;
 using AspNetCoreIdentityApp.Web.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
 });
 
+// Burada wwwroot dosyasýna heryerden eriþmek için IFileProvider arayüzünü kullanarak wwwroot eriþmemizi saðlayacak.
+builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory()));
 
 // Identity Configuration
 builder.Services.AddIdentityWithExtention();

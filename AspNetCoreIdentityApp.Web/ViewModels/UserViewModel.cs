@@ -10,5 +10,6 @@ namespace AspNetCoreIdentityApp.Web.ViewModels
         public string? Email { get; set; }
         [Display(Name = "Telefon Numarası")]
         public string? PhoneNumber { get; set; }
+        public string? PictureUrl { get; set; }
     }
 }
