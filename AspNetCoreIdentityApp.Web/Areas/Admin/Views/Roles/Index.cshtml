@@ -1,0 +1,43 @@
+﻿@model List<Admin.RoleListViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="text-left">
+    <a asp-action="RoleCreate" class="btn btn-outline-primary sm">Yeni Rol Ekle</a>
+</div>
+
+@if (!string.IsNullOrEmpty(TempData["success"]?.ToString()))
+{
+    <div class="alert alert-success">
+        @TempData["success"]
+    </div>
+}
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Kullanıcı Adı</th>
+
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <th scope="row">@item.Id</th>
+            <td>@item.Name</td>
+            <td>
+                <a asp-action="RoleEdit" asp-route-id="@item.Id" class="btn btn-outline-primary sm">Düzenle</a>
+                <a asp-action="RoleDelete" asp-route-id="@item.Id" class="btn btn-outline-danger sm">Sil</a>
+        </tr>
+    }
+
+    </tbody>
+</table>
+
+
