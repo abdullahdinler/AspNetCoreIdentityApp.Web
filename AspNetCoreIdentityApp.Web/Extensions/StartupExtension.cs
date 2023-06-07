@@ -23,7 +23,8 @@ namespace AspNetCoreIdentityApp.Web.Extensions
             servicesCollection.ConfigureExternalCookie(opt =>
             {
                 // Burada CookieBuilder sınıfı ile cookie ayarlarını yapabiliriz.
-                var cookieBuilder = new CookieBuilder { Name = "AspNetCoreIdentityApp" };
+                var cookieBuilder = new CookieBuilder();
+                cookieBuilder.Name = "AspNetCoreIdentityApp";
                 opt.Cookie = cookieBuilder; // Cookie ayarlarını yapıyoruz.
                 opt.LoginPath = new PathString("/Home/SignIn"); // Kullanıcı giriş yapmadan önceki sayfa. (Login sayfası)
                 opt.LogoutPath = new PathString("/Member/LogOut"); // Kullanıcı çıkış yaptıktan sonra yönlendirileceği sayfa.
@@ -35,7 +36,7 @@ namespace AspNetCoreIdentityApp.Web.Extensions
                 //opt.Cookie.HttpOnly = true; // Cookie'ye javascript ile erişilemesin mi?
                 //opt.Cookie.SameSite = SameSiteMode.Strict; // Cookie'ye sadece kendi domainimizden erişilebilir.
                 //opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Cookie'ye sadece https üzerinden erişilebilir.
-                opt.AccessDeniedPath = new PathString("/Home/SignIn"); // Kullanıcının yetkisi olmayan bir sayfaya erişmeye çalışması durumunda yönlendirileceği sayfa.
+                opt.AccessDeniedPath = new PathString("/Member/AccessDenied"); // Kullanıcının yetkisi olmayan bir sayfaya erişmeye çalışması durumunda yönlendirileceği sayfa.
                 //opt.ReturnUrlParameter = "returnUrl"; // Kullanıcının yetkisi olmayan bir sayfaya erişmeye çalışması durumunda yönlendirileceği sayfa.
 
             });

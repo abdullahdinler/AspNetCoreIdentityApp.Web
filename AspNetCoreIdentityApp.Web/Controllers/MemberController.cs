@@ -158,5 +158,13 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             return RedirectToAction(nameof(UserEdit));
 
         }
+
+
+        public IActionResult AccessDenied(string returnUrl)
+        {
+            ViewBag.Message = "Bu sayfaya erişim yetkiniz yoktur.";
+
+            return View();
+        }
     }
 }

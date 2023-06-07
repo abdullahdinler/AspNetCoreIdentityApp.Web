@@ -1,0 +1,43 @@
+﻿@model IList< Admin.AssignRoleToUserViewModel>
+@{
+    ViewData["Title"] = "AssignRole";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h4>Role Ata</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4 offset-md-3">
+        <form asp-action="AssignRole" asp-route-userId="@ViewBag.UserId" method="post">
+
+            @for (var i = 0; i < @Model.Count; i++)
+            {
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" asp-for="@Model[i].HasRole">
+                    <label class="form-check-label" for="exampleCheck1">@Model[i].Name</label>
+                    <input type="hidden" asp-for="@Model[i].Name" />
+                    <input type="hidden" asp-for="@Model[i].Id" />
+                </div>
+            }
+
+
+
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Rol Ata" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Home" asp-action="UserList">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

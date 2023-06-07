@@ -12,6 +12,8 @@
             <th scope="col">#</th>
             <th scope="col">Kullanıcı Adı</th>
             <th scope="col">Email</th>
+            <th>Rol</th>
+            <th scope="col">Rol İşlemleri</th>
 
         </tr>
     </thead>
@@ -23,6 +25,8 @@
                 <th scope="row">@item.Id</th>
                 <td>@item.Name</td>
                 <td>@item.Email</td>
+                <td><user-role-list id="@item.Id"></user-role-list></td>
+                <td><a asp-controller="Roles" asp-action="AssignRole" asp-route-id="@item.Id">Rol Ata</a></td>
             </tr>
         }
 
