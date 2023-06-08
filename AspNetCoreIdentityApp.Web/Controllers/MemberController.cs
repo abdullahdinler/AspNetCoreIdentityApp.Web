@@ -124,7 +124,8 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             currentUser.Gender = model.Gender;
             currentUser.City = model.City;
 
-            if (model.Picture != null || model.Picture.Length > 0)
+
+            if (model.Picture != null && model.Picture!.Length > 0)
             {
                 // Burada wwwroot klasörün dizisini aldık
                 var wwwRootFolder = _fileProvider.GetDirectoryContents("wwwroot");
@@ -143,6 +144,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
                 currentUser.Picture = randomFileName;
             }
 
+
             var updateUserResult = await _userManager.UpdateAsync(currentUser);
             if (!updateUserResult.Succeeded)
             {
@@ -157,6 +159,27 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             TempData["success"] = "Bilgileriniz başarılı birşekilde güncellendi.";
             return RedirectToAction(nameof(UserEdit));
 
+        }
+
+
+        [HttpGet]
+        public IActionResult Claims()
+        {
+            var userClaims = User.Claims.Select(x => new ClaimViewModel()
+            {
+                Value = x.Value,
+                Type = x.Type,
+                Issuer = x.OriginalIssuer
+            }).ToList();
+
+            return View(userClaims);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "CityPolicy")]
+        public IActionResult CityPage()
+        {
+            return View();
         }
 
 

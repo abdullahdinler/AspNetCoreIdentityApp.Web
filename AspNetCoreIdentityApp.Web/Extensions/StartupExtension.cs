@@ -30,13 +30,12 @@ namespace AspNetCoreIdentityApp.Web.Extensions
                 opt.LogoutPath = new PathString("/Member/LogOut"); // Kullanıcı çıkış yaptıktan sonra yönlendirileceği sayfa.
                 opt.ExpireTimeSpan = TimeSpan.FromMinutes(5); // Cookie süresi
                 opt.SlidingExpiration = true; // Cookie süresi uzatılsın mı?
-
+                opt.AccessDeniedPath = new PathString("/Member/AccessDenied"); // Kullanıcının yetkisi olmayan bir sayfaya erişmeye çalışması durumunda yönlendirileceği sayfa.
 
                 //opt.Cookie.Domain = "localhost"; // Cookie domain
                 //opt.Cookie.HttpOnly = true; // Cookie'ye javascript ile erişilemesin mi?
                 //opt.Cookie.SameSite = SameSiteMode.Strict; // Cookie'ye sadece kendi domainimizden erişilebilir.
                 //opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Cookie'ye sadece https üzerinden erişilebilir.
-                opt.AccessDeniedPath = new PathString("/Member/AccessDenied"); // Kullanıcının yetkisi olmayan bir sayfaya erişmeye çalışması durumunda yönlendirileceği sayfa.
                 //opt.ReturnUrlParameter = "returnUrl"; // Kullanıcının yetkisi olmayan bir sayfaya erişmeye çalışması durumunda yönlendirileceği sayfa.
 
             });

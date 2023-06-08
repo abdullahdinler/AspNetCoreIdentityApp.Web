@@ -1,7 +1,9 @@
+using AspNetCoreIdentityApp.Web.ClaimProviders;
 using AspNetCoreIdentityApp.Web.Context;
 using AspNetCoreIdentityApp.Web.Extensions;
 using AspNetCoreIdentityApp.Web.OptionModels;
 using AspNetCoreIdentityApp.Web.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -27,6 +29,20 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 
 // Burada EmailService sýnýfýný kullanacaðýmýzý belirtiyoruz. Yaþam döngüsü Scoped olacak.
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Burada IClaimsTransformation arayüzünü kullanarak UserClaimProvider sýnýfýný kullanacaðýmýzý belirtiyoruz.
+builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CityPolicy", policy =>
+    {
+        policy.RequireClaim("city", new List<string> {"Mardin", "Ýnstanbul"});
+    });
+});
+
+
+
 
 
 var app = builder.Build();
