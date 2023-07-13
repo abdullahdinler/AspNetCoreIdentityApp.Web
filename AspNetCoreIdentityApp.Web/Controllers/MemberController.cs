@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
 namespace AspNetCoreIdentityApp.Web.Controllers
@@ -182,6 +181,13 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             return View();
         }
 
+
+        [HttpGet]
+        [Authorize(Policy = "ExchangePolicy")]
+        public IActionResult ExchangePage()
+        {
+            return View();
+        }
 
         public IActionResult AccessDenied(string returnUrl)
         {

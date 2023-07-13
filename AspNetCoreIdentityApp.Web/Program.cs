@@ -2,8 +2,10 @@ using AspNetCoreIdentityApp.Web.ClaimProviders;
 using AspNetCoreIdentityApp.Web.Context;
 using AspNetCoreIdentityApp.Web.Extensions;
 using AspNetCoreIdentityApp.Web.OptionModels;
+using AspNetCoreIdentityApp.Web.Requirements;
 using AspNetCoreIdentityApp.Web.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -33,11 +35,20 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Burada IClaimsTransformation arayüzünü kullanarak UserClaimProvider sýnýfýný kullanacaðýmýzý belirtiyoruz.
 builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>();
 
+builder.Services.AddScoped<IAuthorizationHandler, ExchangeExpireRequirementHandler>();
+
+
 builder.Services.AddAuthorization(options =>
 {
+    // Burada CityPolicy isimli bir policy oluþturuyoruz. Bu policy'yi kullanabilmek için kullanýcýnýn city claim'ine sahip olmasý gerekiyor.
     options.AddPolicy("CityPolicy", policy =>
     {
-        policy.RequireClaim("city", new List<string> {"Mardin", "Ýnstanbul"});
+        policy.RequireClaim("city", new List<string> {"Mardin", "Ýstanbul"});
+    });
+    // Burada ExchangeExpireRequirement sýnýfýný kullanacaðýmýzý belirtiyoruz.
+    options.AddPolicy("ExchangePolicy", policy =>
+    {
+        policy.AddRequirements(new ExchangeExpireRequirement());
     });
 });
 

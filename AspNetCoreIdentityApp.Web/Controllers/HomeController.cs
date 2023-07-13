@@ -1,6 +1,8 @@
 ﻿using AspNetCoreIdentityApp.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Globalization;
+using System.Security.Claims;
 using AspNetCoreIdentityApp.Web.Extensions;
 using AspNetCoreIdentityApp.Web.Services;
 using AspNetCoreIdentityApp.Web.ViewModels;
@@ -65,15 +67,34 @@ namespace AspNetCoreIdentityApp.Web.Controllers
                 PhoneNumber = model.PhoneNumber
             }, model.PasswordConfirm);
 
-            if (identityResult.Succeeded)
+            if (!identityResult.Succeeded)
             {
-                TempData["Message"] = "Kayıt Başarılı bir şekilde oluşturuldu.";
-                return RedirectToAction(nameof(SignUp));
+                // AddModelErrorExtension ile hata mesajları ModelStateDictionary sınıfına eklenir.
+                ModelState.AddModelErrorExtension(identityResult.Errors.Select(x => x.Description).ToList());
+                return View();
             }
 
-            // AddModelErrorExtension ile hata mesajları ModelStateDictionary sınıfına eklenir.
-            ModelState.AddModelErrorExtension(identityResult.Errors.Select(x => x.Description).ToList());
-            return View();
+            #region User Claim Ekleme - Bir sayfaya belirli bir süre erişmek.
+
+            var exchangeExpireClaim = new Claim("ExchangeExpire", DateTime.Now.AddDays(10).ToString(CultureInfo.InvariantCulture));
+
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            var addClaim = await _userManager.AddClaimAsync(user, exchangeExpireClaim);
+
+            if (!addClaim.Succeeded)
+            {
+                ModelState.AddModelErrorExtension(addClaim.Errors.Select(x => x.Description).ToList());
+                return View();
+            }
+
+            #endregion
+
+            TempData["Message"] = "Kayıt Başarılı bir şekilde oluşturuldu.";
+            return RedirectToAction(nameof(SignIn));
+
+
+
+
         }
 
 
