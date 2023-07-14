@@ -116,27 +116,34 @@ namespace AspNetCoreIdentityApp.Web.Controllers
                 return View();
             }
 
+
             // PasswordSignInAsync ile kullanıcı girişi yapılır. Email ve şifre ile giriş yapılır. RememberMe ile kullanıcı bilgileri hatırlanır. 
             var result = await _signInManager.PasswordSignInAsync(hasUser, model.Password, model.RememberMe, true);
-
-            if (result.Succeeded)
-            {
-                return Redirect(returnUrl!);
-            }
-
             if (result.IsLockedOut)
             {
                 ModelState.AddModelError(string.Empty, "Hesabınız 6 dakika süreyle kilitlendi.");
                 return View();
             }
 
-            // GetAccessFailedCountAsync ile kullanıcının giriş yapma sayısı kontrol edilir.
-            var failedAttempts = await _userManager.GetAccessFailedCountAsync(hasUser);
+            if (!result.Succeeded)
+            {
+                // GetAccessFailedCountAsync ile kullanıcının giriş yapma sayısı kontrol edilir.
+                var failedAttempts = await _userManager.GetAccessFailedCountAsync(hasUser);
 
-            // AddModelErrorExtension ile hata mesajları ModelStateDictionary sınıfına eklenir.
-            ModelState.AddModelErrorExtension(new List<string>() { "Email veya şifre hatalı.", $"Başarısız giriş sayısı: {failedAttempts}" });
+                // AddModelErrorExtension ile hata mesajları ModelStateDictionary sınıfına eklenir.
+                ModelState.AddModelErrorExtension(new List<string>() { "Email veya şifre hatalı.", $"Başarısız giriş sayısı: {failedAttempts}" });
+                return View();
+            }
 
-            return View();
+            if (hasUser.BirthDate.HasValue)
+            {
+                await _signInManager.SignInWithClaimsAsync(hasUser, model.RememberMe,
+                    new[] {new Claim("birthdate", hasUser.BirthDate.Value.ToString())});
+            }
+
+            return Redirect(returnUrl!);
+
+
         }
 
         [HttpGet]

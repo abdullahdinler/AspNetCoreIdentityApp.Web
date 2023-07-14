@@ -1,4 +1,5 @@
-﻿using AspNetCoreIdentityApp.Web.Extensions;
+﻿using System.Security.Claims;
+using AspNetCoreIdentityApp.Web.Extensions;
 using AspNetCoreIdentityApp.Web.Models;
 using AspNetCoreIdentityApp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -153,7 +154,17 @@ namespace AspNetCoreIdentityApp.Web.Controllers
 
             await _userManager.UpdateSecurityStampAsync(currentUser);
             await _signInManager.SignOutAsync();
-            await _signInManager.SignInAsync(currentUser, true);
+           
+
+            if (model.BirthDate.HasValue)
+            {
+                await _signInManager.SignInWithClaimsAsync(currentUser, true,
+                    new[] {new Claim("birthdate", currentUser.BirthDate.Value.ToString())});
+            }
+            else
+            {
+                await _signInManager.SignInAsync(currentUser, true);
+            }
 
             TempData["success"] = "Bilgileriniz başarılı birşekilde güncellendi.";
             return RedirectToAction(nameof(UserEdit));
@@ -185,6 +196,13 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         [HttpGet]
         [Authorize(Policy = "ExchangePolicy")]
         public IActionResult ExchangePage()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "ViolencePolicy")]
+        public IActionResult ViolencePage()
         {
             return View();
         }
