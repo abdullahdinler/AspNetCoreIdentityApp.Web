@@ -207,6 +207,13 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             return View();
         }
 
+        [HttpGet]
+        [Authorize(Policy = "PermissionOrderPolicy")]
+        public IActionResult PermissionOrderPage()
+        {
+            return View();
+        }
+
         public IActionResult AccessDenied(string returnUrl)
         {
             ViewBag.Message = "Bu sayfaya erişim yetkiniz yoktur.";

@@ -1,11 +1,15 @@
 using AspNetCoreIdentityApp.Web.ClaimProviders;
 using AspNetCoreIdentityApp.Web.Context;
 using AspNetCoreIdentityApp.Web.Extensions;
+using AspNetCoreIdentityApp.Web.Models;
 using AspNetCoreIdentityApp.Web.OptionModels;
+using AspNetCoreIdentityApp.Web.Permissions;
 using AspNetCoreIdentityApp.Web.Requirements;
+using AspNetCoreIdentityApp.Web.Seeds;
 using AspNetCoreIdentityApp.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -56,6 +60,13 @@ builder.Services.AddAuthorization(options =>
     {
         policy.AddRequirements(new ViolenceRequirement(){ThresholdAge = 18});
     });
+    options.AddPolicy("PermissionOrderPolicy", policy =>
+    {
+        policy.RequireClaim("Permission", Permission.Order.CreateOrder);
+        policy.RequireClaim("Permission", Permission.Order.EditOrder);
+        policy.RequireClaim("Permission", Permission.Order.ListOrders);
+        policy.RequireClaim("Permission", Permission.Order.DeleteOrder);
+    });
 });
 
 
@@ -63,6 +74,12 @@ builder.Services.AddAuthorization(options =>
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
+    await PermissionSeed.Seed(roleManager);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
