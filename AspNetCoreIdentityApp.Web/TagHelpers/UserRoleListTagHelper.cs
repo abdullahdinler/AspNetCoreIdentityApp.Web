@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
-using AspNetCoreIdentityApp.Web.Models;
+using AspNetCoreIdentityApp.Repository.Models;
+using AspNetCoreIdentityApp.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 

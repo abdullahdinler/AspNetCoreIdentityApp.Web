@@ -1,12 +1,14 @@
 using AspNetCoreIdentityApp.Web.ClaimProviders;
-using AspNetCoreIdentityApp.Web.Context;
+using AspNetCoreIdentityApp.Repository.Context;
 using AspNetCoreIdentityApp.Web.Extensions;
-using AspNetCoreIdentityApp.Web.Models;
-using AspNetCoreIdentityApp.Web.OptionModels;
-using AspNetCoreIdentityApp.Web.Permissions;
+using AspNetCoreIdentityApp.Core.Models;
+using AspNetCoreIdentityApp.Core.OptionModels;
+using AspNetCoreIdentityApp.Core.Permissions;
+using AspNetCoreIdentityApp.Repository.Models;
 using AspNetCoreIdentityApp.Web.Requirements;
-using AspNetCoreIdentityApp.Web.Seeds;
-using AspNetCoreIdentityApp.Web.Services;
+using AspNetCoreIdentityApp.Repository.Seeds;
+using AspNetCoreIdentityApp.Service.Services;
+using AspNetCoreIdentityApp.Service.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +23,10 @@ builder.Services.AddControllersWithViews();
 // Sql Server Connection
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
-    option.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
+    option.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"), opt =>
+    {
+        opt.MigrationsAssembly("AspNetCoreIdentityApp.Repository");
+    });
 });
 
 // Burada wwwroot dosyasýna heryerden eriþmek için IFileProvider arayüzünü kullanarak wwwroot eriþmemizi saðlayacak.
@@ -42,6 +47,7 @@ builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, ExchangeExpireRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ViolenceRequirementHandler>();
 
+builder.Services.AddScoped<IMemberService, MemberService>();
 
 builder.Services.AddAuthorization(options =>
 {

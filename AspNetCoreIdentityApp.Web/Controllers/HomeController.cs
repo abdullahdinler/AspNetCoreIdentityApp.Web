@@ -1,11 +1,12 @@
-﻿using AspNetCoreIdentityApp.Web.Models;
+﻿using AspNetCoreIdentityApp.Repository.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security.Claims;
+using AspNetCoreIdentityApp.Core.Models;
 using AspNetCoreIdentityApp.Web.Extensions;
-using AspNetCoreIdentityApp.Web.Services;
-using AspNetCoreIdentityApp.Web.ViewModels;
+using AspNetCoreIdentityApp.Service.Services;
+using AspNetCoreIdentityApp.Core.ViewModels;
 using Microsoft.AspNetCore.Identity;
 
 namespace AspNetCoreIdentityApp.Web.Controllers
